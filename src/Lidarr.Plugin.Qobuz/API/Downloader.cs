@@ -119,9 +119,9 @@ public static class Downloader
 
     private static async Task ApplyMetadataToTagLibFile(this QobuzApiService s, TagLib.File track, string trackId, string lyrics = "", CancellationToken token = default)
     {
-        var page = s.GetTrack(trackId);
+        var page = s.GetTrack(trackId, true);
         string albumId = page.Album.Id;
-        var albumPage = s.GetAlbum(albumId);
+        var albumPage = s.GetAlbum(albumId, true);
 
         byte[]? albumArt = null;
         try { albumArt = await s.GetAlbumArtBytes(albumId, token); } catch (Exception) { }

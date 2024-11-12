@@ -108,13 +108,13 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 
         private async Task DoTrackDownload(string track, QobuzSettings settings, CancellationToken cancellation = default)
         {
-            var page = QobuzAPI.Instance.Client.GetTrack(track);
+            var page = QobuzAPI.Instance.Client.GetTrack(track, true);
             var songTitle = page.Title;
             var artistName = page.Performer.Name;
             var albumTitle = page.Album.Title;
             var duration = page.Duration;
 
-            var ext = Bitrate == AudioQuality.MP3320 ? ".mp3" : ".flac";
+            var ext = Bitrate == AudioQuality.MP3320 ? "mp3" : "flac";
             var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album%/", ext, page, _qobuzAlbum), MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
             var outDir = Path.GetDirectoryName(outPath)!;
 
@@ -122,8 +122,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
 
-            string url = QobuzAPI.Instance.Client.GetTrackFileUrl(track, ((int)Bitrate).ToString())?.Url;
-
+            await QobuzAPI.Instance.Client.WriteRawTrackToFile(track, outPath, Bitrate, cancellation);
             outPath = HandleAudioConversion(outPath, settings);
 
             var plainLyrics = string.Empty;
@@ -214,7 +213,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             if (_qobuzUrl.EntityType != EntityType.Album)
                 throw new InvalidOperationException();
 
-            var album = QobuzAPI.Instance.Client.GetAlbum(_qobuzUrl.Id);
+            var album = QobuzAPI.Instance.Client.GetAlbum(_qobuzUrl.Id, true);
             _tracks ??= album.Tracks.Items.Select(t => t.Id.ToString()).ToArray();
 
             _qobuzAlbum = album;

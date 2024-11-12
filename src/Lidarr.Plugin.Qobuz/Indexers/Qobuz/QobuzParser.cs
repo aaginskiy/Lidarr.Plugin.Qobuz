@@ -68,7 +68,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             var result = new ReleaseInfo
             {
                 Guid = $"Qobuz-{x.Id}-{bitrate}",
-                Artist = x.Artists.First().Name,
+                Artist = x.Artist.Name,
                 Album = title,
                 DownloadUrl = url,
                 InfoUrl = url,
@@ -117,7 +117,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             var size = x.Duration * bps;*/
 
             result.Size = size;
-            result.Title = $"{x.Artists.First().Name} - {x.Title}";
+            result.Title = $"{x.Artist.Name} - {x.Title}";
 
             if (year > 0)
             {
