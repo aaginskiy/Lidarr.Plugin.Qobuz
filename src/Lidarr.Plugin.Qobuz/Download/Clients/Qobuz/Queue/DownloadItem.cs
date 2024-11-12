@@ -9,6 +9,7 @@ using NLog;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Plugins;
 using NzbDrone.Plugin.Qobuz.API;
+using QobuzApiSharp.Models.Content;
 
 namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 {
@@ -66,16 +67,16 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 
         public int FailedTracks { get; private set; }
 
-        private (string id, int chunks)[] _tracks;
+        private string[] _tracks;
         private QobuzURL _qobuzUrl;
-        private JObject _qobuzAlbum;
+        private Album _qobuzAlbum;
         private DateTime _lastARLValidityCheck = DateTime.MinValue;
 
         public async Task DoDownload(QobuzSettings settings, Logger logger, CancellationToken cancellation = default)
         {
             List<Task> tasks = new();
             using SemaphoreSlim semaphore = new(3, 3);
-            foreach (var (trackId, trackSize) in _tracks)
+            foreach (var trackId in _tracks)
             {
                 tasks.Add(Task.Run(async () =>
                 {
@@ -107,15 +108,13 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 
         private async Task DoTrackDownload(string track, QobuzSettings settings, CancellationToken cancellation = default)
         {
-            // TODO: download
-            await Task.Delay(100);
-            /*var page = await QobuzAPI.Instance.Client.API.GetTrack(track, cancellation);
-            var songTitle = page["title"]!.ToString();
-            var artistName = page["artist"]!["name"]!.ToString();
-            var albumTitle = page["album"]!["title"]!.ToString();
-            var duration = page["duration"]!.Value<int>();
+            var page = QobuzAPI.Instance.Client.GetTrack(track);
+            var songTitle = page.Title;
+            var artistName = page.Performer.Name;
+            var albumTitle = page.Album.Title;
+            var duration = page.Duration;
 
-            var ext = (await QobuzAPI.Instance.Client.Downloader.GetExtensionForTrack(track, Bitrate)).TrimStart('.');
+            var ext = Bitrate == AudioQuality.MP3320 ? ".mp3" : ".flac";
             var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album%/", ext, page, _qobuzAlbum), MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
             var outDir = Path.GetDirectoryName(outPath)!;
 
@@ -123,25 +122,17 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
 
-            await QobuzAPI.Instance.Client.Downloader.WriteRawTrackToFile(track, Bitrate, outPath, (i) => DownloadedSize++, cancellation);
+            string url = QobuzAPI.Instance.Client.GetTrackFileUrl(track, ((int)Bitrate).ToString())?.Url;
+
             outPath = HandleAudioConversion(outPath, settings);
 
             var plainLyrics = string.Empty;
             string syncLyrics = null;
 
-            var lyrics = await QobuzAPI.Instance.Client.Downloader.FetchLyricsFromQobuz(track, cancellation);
-            if (lyrics.HasValue)
-            {
-                plainLyrics = lyrics.Value.plainLyrics;
-
-                if (settings.SaveSyncedLyrics)
-                    syncLyrics = lyrics.Value.syncLyrics;
-            }
-
             if (settings.UseLRCLIB && (string.IsNullOrWhiteSpace(plainLyrics) || (settings.SaveSyncedLyrics && !(syncLyrics?.Any() ?? false))))
             {
-                lyrics = await QobuzAPI.Instance.Client.Downloader.FetchLyricsFromLRCLIB("lrclib.net", songTitle, artistName, albumTitle, duration, cancellation);
-                if (lyrics.HasValue)
+                var lyrics = await Downloader.FetchLyricsFromLRCLIB("lrclib.net", songTitle, artistName, albumTitle, duration ?? 0, cancellation);
+                if (lyrics != null)
                 {
                     if (string.IsNullOrWhiteSpace(plainLyrics))
                         plainLyrics = lyrics.Value.plainLyrics;
@@ -150,10 +141,10 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
                 }
             }
 
-            await QobuzAPI.Instance.Client.Downloader.ApplyMetadataToFile(track, outPath, MediaResolution.s640, plainLyrics, token: cancellation);
+            await QobuzAPI.Instance.Client.ApplyMetadataToFile(track, outPath, plainLyrics, token: cancellation);
 
             if (syncLyrics != null)
-                await CreateLrcFile(Path.Combine(outDir, MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", "lrc", page, _qobuzAlbum)), syncLyrics);*/
+                await CreateLrcFile(Path.Combine(outDir, MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", "lrc", page, _qobuzAlbum)), syncLyrics);
 
             // TODO: this is currently a waste of resources, if this pr ever gets merged, it can be reenabled
             // https://github.com/Lidarr/Lidarr/pull/4370
@@ -220,29 +211,18 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 
         private async Task SetQobuzData(CancellationToken cancellation = default)
         {
-            // TODO: data parsing
-            await Task.Delay(100);
-            /*if (_qobuzUrl.EntityType != EntityType.Album)
+            if (_qobuzUrl.EntityType != EntityType.Album)
                 throw new InvalidOperationException();
 
-            var album = await QobuzAPI.Instance.Client.API.GetAlbum(_qobuzUrl.Id, cancellation);
-            var albumTracks = await QobuzAPI.Instance.Client.API.GetAlbumTracks(_qobuzUrl.Id, cancellation);
-
-            var tracksTasks = albumTracks["items"]!.Select(async t =>
-            {
-                var chunks = await QobuzAPI.Instance.Client.Downloader.GetChunksInTrack(t["id"]!.ToString(), Bitrate, cancellation);
-                return (t["id"]!.ToString(), chunks);
-            }).ToArray();
-
-            var tracks = await Task.WhenAll(tracksTasks);
-            _tracks ??= tracks;
+            var album = QobuzAPI.Instance.Client.GetAlbum(_qobuzUrl.Id);
+            _tracks ??= album.Tracks.Items.Select(t => t.Id.ToString()).ToArray();
 
             _qobuzAlbum = album;
 
-            Title = album["title"]!.ToString();
-            Artist = album["artist"]!["name"]!.ToString();
-            Explicit = album["explicit"]!.Value<bool>();
-            TotalSize = _tracks.Sum(t => t.chunks);*/
+            Title = album.Title;
+            Artist = album.Artist.Name;
+            Explicit = album.ParentalWarning.GetValueOrDefault();
+            TotalSize = _tracks.Length;
         }
 
         private static async Task CreateLrcFile(string lrcFilePath, string syncLyrics)

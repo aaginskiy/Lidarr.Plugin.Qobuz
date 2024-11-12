@@ -4,23 +4,24 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using QobuzApiSharp.Models.Content;
 
 namespace NzbDrone.Core.Download.Clients.Qobuz
 {
     internal static class MetadataUtilities
     {
-        public static string GetFilledTemplate(string template, string ext, JObject qobuzPage, JObject qobuzAlbum)
+        public static string GetFilledTemplate(string template, string ext, Track qobuzPage, Album qobuzAlbum)
         {
-            var releaseDate = DateTime.Parse(qobuzAlbum["releaseDate"]!.ToString(), CultureInfo.InvariantCulture);
+            var releaseDate = qobuzAlbum.ReleaseDateOriginal.GetValueOrDefault().DateTime;
             return GetFilledTemplate_Internal(template,
-                qobuzPage["title"]!.ToString(),
-                qobuzPage["album"]!["title"]!.ToString(),
-                qobuzAlbum["artist"]!["name"]!.ToString(),
-                qobuzPage["artist"]!["name"]!.ToString(),
-                qobuzAlbum["artists"]!.Select(a => a["name"]!.ToString()).ToArray(),
-                qobuzPage!["artists"]!.Select(a => a["name"]!.ToString()).ToArray(),
-                $"{(int)qobuzPage["trackNumber"]!:00}",
-                qobuzAlbum["numberOfTracks"]!.ToString(),
+                qobuzPage.Title,
+                qobuzPage.Album.Title,
+                qobuzAlbum.Artist.Name,
+                qobuzPage.Performer.Name,
+                qobuzAlbum.Artists.Select(a => a.Name).ToArray(),
+                [qobuzPage.Performer.Name], // tracks don't seem to have a proper way to handle multiple artists
+                $"{qobuzPage.TrackNumber:00}",
+                qobuzAlbum.TracksCount.ToString(),
                 releaseDate.Year.ToString(CultureInfo.InvariantCulture),
                 ext);
         }
