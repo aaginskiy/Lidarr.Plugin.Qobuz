@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Plugin.Qobuz.API;
+using QobuzApiSharp.Models.Content;
 
 namespace NzbDrone.Core.Indexers.Qobuz
 {
@@ -15,52 +16,60 @@ namespace NzbDrone.Core.Indexers.Qobuz
 
         public IList<ReleaseInfo> ParseResponse(IndexerResponse response)
         {
-            // TODO: parse releases
-            return [];
-            /*var torrentInfos = new List<ReleaseInfo>();
-            var content = new HttpResponse<QobuzSearchResponse>(response.HttpResponse).Content;
+            var torrentInfos = new List<ReleaseInfo>();
+            var content = new HttpResponse<SearchResult>(response.HttpResponse).Content;
 
-            var jsonResponse = JObject.Parse(content).ToObject<QobuzSearchResponse>();
-            var releases = jsonResponse.AlbumResults.Items.Select(result => ProcessAlbumResult(result)).ToArray();
+            var jsonResponse = JObject.Parse(content).ToObject<SearchResult>();
+            var releases = jsonResponse.Albums.Items.Select(result => ProcessAlbumResult(result)).ToArray();
 
             foreach (var task in releases)
             {
                 torrentInfos.AddRange(task);
             }
 
-            foreach (var track in jsonResponse.TrackResults.Items)
-            {
-                // make sure the album hasn't already been processed before doing this
-                if (!jsonResponse.AlbumResults.Items.Any(a => a.Id == track.Album.Id))
-                {
-                    var processTrackTask = ProcessTrackAlbumResultAsync(track);
-                    processTrackTask.Wait();
-                    torrentInfos.AddRange(processTrackTask.Result);
-                }
-            }
-
             return torrentInfos
                 .OrderByDescending(o => o.Size)
-                .ToArray();*/
+                .ToArray();
         }
 
-        private static ReleaseInfo ToReleaseInfo(QobuzSearchResponse.Album x, AudioQuality bitrate)
+        private IEnumerable<ReleaseInfo> ProcessAlbumResult(Album result)
+        {
+            // determine available audio qualities
+            List<AudioQuality> qualityList = new() { AudioQuality.MP3320, AudioQuality.FLACLossless };
+
+            if (result.MaximumBitDepth == 24 && (result.HiresStreamable ?? false))
+            {
+                qualityList.Add(AudioQuality.FLACHiRes24Bit192Khz);
+                qualityList.Add(AudioQuality.FLACHiRes24Bit96kHz);
+            }
+
+            return qualityList.Select(q => ToReleaseInfo(result, q));
+        }
+
+        private static ReleaseInfo ToReleaseInfo(Album x, AudioQuality bitrate)
         {
             var publishDate = DateTime.UtcNow;
             var year = 0;
-            if (DateTime.TryParse(x.ReleaseDate, out var digitalReleaseDate))
+            if (x.ReleaseDateOriginal != null)
             {
-                publishDate = digitalReleaseDate;
+                publishDate = x.ReleaseDateOriginal.Value.DateTime;
                 year = publishDate.Year;
             }
 
             var url = x.Url;
+            var title = x.Title.Trim();
+
+            if (title.EndsWith(" (Explicit)"))
+                title = title[..title.IndexOf(" (Explicit)")].Trim();
+
+            if (!string.IsNullOrEmpty(x.Version))
+                title = $"{title} ({x.Version})";
 
             var result = new ReleaseInfo
             {
                 Guid = $"Qobuz-{x.Id}-{bitrate}",
                 Artist = x.Artists.First().Name,
-                Album = x.Title,
+                Album = title,
                 DownloadUrl = url,
                 InfoUrl = url,
                 PublishDate = publishDate,
@@ -115,7 +124,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
                 result.Title += $" ({year})";
             }
 
-            if (x.Explicit)
+            if (x.ParentalWarning.GetValueOrDefault())
             {
                 result.Title += " [Explicit]";
             }

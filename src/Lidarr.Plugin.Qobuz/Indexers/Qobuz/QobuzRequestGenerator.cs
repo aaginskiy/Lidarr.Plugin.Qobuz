@@ -10,7 +10,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
     public class QobuzRequestGenerator : IIndexerRequestGenerator
     {
         private const int PageSize = 100;
-        private const int MaxPages = 30;
+        private const int MaxPages = 15;
         public QobuzIndexerSettings Settings { get; set; }
         public Logger Logger { get; set; }
 
@@ -50,24 +50,23 @@ namespace NzbDrone.Core.Indexers.Qobuz
                 QobuzAPI.Instance.PickSignInFromSettings(Settings, Logger);
             }
 
-            // TODO: search
-            return [];
-            /*for (var page = 0; page < MaxPages; page++)
+            for (var page = 0; page < MaxPages; page++)
             {
                 var data = new Dictionary<string, string>()
                 {
                     ["query"] = searchParameters,
                     ["limit"] = $"{PageSize}",
-                    ["types"] = "albums,tracks",
                     ["offset"] = $"{page * PageSize}",
                 };
 
-                var url = QobuzAPI.Instance!.GetAPIUrl("search", data);
+                var url = QobuzAPI.Instance!.GetAPIUrl("/album/search", data);
                 var req = new IndexerRequest(url, HttpAccept.Json);
                 req.HttpRequest.Method = System.Net.Http.HttpMethod.Get;
-                req.HttpRequest.Headers.Add("Authorization", $"{QobuzAPI.Instance.Client.ActiveUser.TokenType} {QobuzAPI.Instance.Client.ActiveUser.AccessToken}");
+                req.HttpRequest.Headers.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                req.HttpRequest.Headers.Add("X-App-ID", $"{QobuzAPI.Instance.Client.AppId}");
+                req.HttpRequest.Headers.Add("X-User-Auth-Token", $"{QobuzAPI.Instance.Login.AuthToken}");
                 yield return req;
-            }*/
+            }
         }
     }
 }

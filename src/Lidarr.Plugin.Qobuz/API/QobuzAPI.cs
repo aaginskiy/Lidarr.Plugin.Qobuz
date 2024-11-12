@@ -67,13 +67,9 @@ public class QobuzAPI
 
     public string GetAPIUrl(string method, Dictionary<string, string> parameters = null)
     {
-        /*parameters ??= new();
-        parameters["sessionId"] = _client.ActiveUser?.SessionID ?? "";
-        parameters["countryCode"] = _client.ActiveUser?.CountryCode ?? "";
-        if (!parameters.ContainsKey("limit"))
-            parameters["limit"] = "1000";
+        parameters ??= [];
 
-        StringBuilder stringBuilder = new("https://api.qobuz.com/v1/");
+        StringBuilder stringBuilder = new("https://www.qobuz.com/api.json/0.2");
         stringBuilder.Append(method);
         for (var i = 0; i < parameters.Count; i++)
         {
@@ -82,10 +78,7 @@ public class QobuzAPI
             var value = WebUtility.UrlEncode(parameters.ElementAt(i).Value);
             stringBuilder.Append(start + key + "=" + value);
         }
-        return stringBuilder.ToString();*/
-
-        // TODO: getApiUrl
-        return "";
+        return stringBuilder.ToString();
     }
 }
 
