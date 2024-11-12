@@ -47,7 +47,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             // if we don't it should throw an error
             if (!QobuzAPI.Instance.Client.IsAppSecretValid())
             {
-                QobuzAPI.Instance.LoginWithEmail(Settings.Email, Settings.MD5Password);
+                QobuzAPI.Instance.PickSignInFromSettings(Settings, Logger);
             }
 
             // TODO: search

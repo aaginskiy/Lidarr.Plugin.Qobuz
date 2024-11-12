@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using NLog;
+using NzbDrone.Core.Indexers.Qobuz;
 using QobuzApiSharp.Models.User;
 using QobuzApiSharp.Service;
 
@@ -35,9 +37,32 @@ public class QobuzAPI
 
     private Login _login;
 
+    public void PickSignInFromSettings(QobuzIndexerSettings settings, Logger logger)
+    {
+        bool ep = !string.IsNullOrEmpty(settings.Email) && !string.IsNullOrEmpty(settings.MD5Password);
+        bool it = !string.IsNullOrEmpty(settings.UserID) && !string.IsNullOrEmpty(settings.UserAuthToken);
+
+        try
+        {
+            if (ep)
+                LoginWithEmail(settings.Email, settings.MD5Password);
+            else if (it)
+                LoginWithToken(settings.UserID, settings.UserAuthToken);
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Qobuz login failed:\n{ex}");
+        }
+    }
+
     public void LoginWithEmail(string email, string password)
     {
         _login = _client.LoginWithEmail(email, password);
+    }
+
+    public void LoginWithToken(string userId, string userAuthToken)
+    {
+        _login = _client.LoginWithToken(userId, userAuthToken);
     }
 
     public string GetAPIUrl(string method, Dictionary<string, string> parameters = null)

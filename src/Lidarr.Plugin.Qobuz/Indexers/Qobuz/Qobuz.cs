@@ -33,17 +33,12 @@ namespace NzbDrone.Core.Indexers.Qobuz
 
         public override IIndexerRequestGenerator GetRequestGenerator()
         {
-            if (!string.IsNullOrEmpty(Settings.Email) && !string.IsNullOrEmpty(Settings.MD5Password))
+            bool ep = !string.IsNullOrEmpty(Settings.Email) && !string.IsNullOrEmpty(Settings.MD5Password);
+            bool it = !string.IsNullOrEmpty(Settings.UserID) && !string.IsNullOrEmpty(Settings.UserAuthToken);
+            if (ep || it)
             {
                 QobuzAPI.Initialize(_logger);
-                try
-                {
-                    QobuzAPI.Instance.LoginWithEmail(Settings.Email, Settings.MD5Password);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Qobuz login failed:\n{ex}");
-                }
+                QobuzAPI.Instance.PickSignInFromSettings(Settings, _logger);
             }
             else
                 return null;
