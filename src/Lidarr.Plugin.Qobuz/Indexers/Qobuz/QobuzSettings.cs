@@ -10,7 +10,6 @@ namespace NzbDrone.Core.Indexers.Qobuz
     {
         public QobuzIndexerSettingsValidator()
         {
-            RuleFor(x => x.ConfigPath).IsValidPath();
         }
     }
 
@@ -18,11 +17,11 @@ namespace NzbDrone.Core.Indexers.Qobuz
     {
         private static readonly QobuzIndexerSettingsValidator Validator = new QobuzIndexerSettingsValidator();
 
-        [FieldDefinition(0, Label = "Redirect Url", Type = FieldType.Textbox)]
-        public string RedirectUrl { get; set; } = "";
+        [FieldDefinition(0, Label = "Qobuz Email", Type = FieldType.Textbox)]
+        public string Email { get; set; } = "";
 
-        [FieldDefinition(1, Label = "Config Path", Type = FieldType.Textbox, HelpText = "This is the directory where you account's information is stored so that it can be reloaded later.")]
-        public string ConfigPath { get; set; } = "";
+        [FieldDefinition(1, Label = "Qobuz Password (MD5)", Type = FieldType.Textbox)]
+        public string MD5Password { get; set; } = "";
 
         [FieldDefinition(2, Type = FieldType.Number, Label = "Early Download Limit", Unit = "days", HelpText = "Time before release date Lidarr will download from this indexer, empty is no limit", Advanced = true)]
         public int? EarlyReleaseLimit { get; set; }

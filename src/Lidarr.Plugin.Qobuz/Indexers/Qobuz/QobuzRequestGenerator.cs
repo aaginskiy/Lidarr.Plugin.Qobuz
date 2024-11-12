@@ -43,6 +43,13 @@ namespace NzbDrone.Core.Indexers.Qobuz
 
         private IEnumerable<IndexerRequest> GetRequests(string searchParameters)
         {
+            // make sure we are logged in and have valid credentials
+            // if we don't it should throw an error
+            if (!QobuzAPI.Instance.Client.IsAppSecretValid())
+            {
+                QobuzAPI.Instance.LoginWithEmail(Settings.Email, Settings.MD5Password);
+            }
+
             // TODO: search
             return [];
             /*for (var page = 0; page < MaxPages; page++)

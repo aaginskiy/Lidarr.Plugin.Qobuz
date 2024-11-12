@@ -33,13 +33,12 @@ namespace NzbDrone.Core.Indexers.Qobuz
 
         public override IIndexerRequestGenerator GetRequestGenerator()
         {
-            // TODO: change this, qobuz auth doesn't require a config path i dont think
-            if (!string.IsNullOrEmpty(Settings.ConfigPath))
+            if (!string.IsNullOrEmpty(Settings.Email) && !string.IsNullOrEmpty(Settings.MD5Password))
             {
                 QobuzAPI.Initialize(_logger);
                 try
                 {
-                    // TODO: login
+                    QobuzAPI.Instance.LoginWithEmail(Settings.Email, Settings.MD5Password);
                 }
                 catch (Exception ex)
                 {
