@@ -123,7 +123,6 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
                 Directory.CreateDirectory(outDir);
 
             await QobuzAPI.Instance.Client.WriteRawTrackToFile(track, outPath, Bitrate, cancellation);
-            outPath = HandleAudioConversion(outPath, settings);
 
             var plainLyrics = string.Empty;
             string syncLyrics = null;
@@ -157,55 +156,6 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
                 }
             }
             catch (UnavailableArtException) { } */
-        }
-
-        private string HandleAudioConversion(string filePath, QobuzSettings settings)
-        {
-            if (!settings.ExtractFlac && !settings.ReEncodeAAC)
-                return filePath;
-
-            var codecs = FFMPEG.ProbeCodecs(filePath);
-            if (codecs.Contains("flac") && settings.ExtractFlac)
-            {
-                var newFilePath = Path.ChangeExtension(filePath, "flac");
-                try
-                {
-                    FFMPEG.ConvertWithoutReencode(filePath, newFilePath);
-                    if (File.Exists(filePath))
-                        File.Delete(filePath);
-                    return newFilePath;
-                }
-                catch (FFMPEGException)
-                {
-                    if (File.Exists(newFilePath))
-                        File.Delete(newFilePath);
-                    return filePath;
-                }
-            }
-
-            if (codecs.Contains("aac") && settings.ReEncodeAAC)
-            {
-                var newFilePath = Path.ChangeExtension(filePath, "mp3");
-                try
-                {
-                    var tagFile = TagLib.File.Create(filePath);
-                    var bitrate = tagFile.Properties.AudioBitrate;
-                    tagFile.Dispose();
-
-                    FFMPEG.Reencode(filePath, newFilePath, bitrate);
-                    if (File.Exists(filePath))
-                        File.Delete(filePath);
-                    return newFilePath;
-                }
-                catch (FFMPEGException)
-                {
-                    if (File.Exists(newFilePath))
-                        File.Delete(newFilePath);
-                    return filePath;
-                }
-            }
-
-            return filePath;
         }
 
         private async Task SetQobuzData(CancellationToken cancellation = default)
