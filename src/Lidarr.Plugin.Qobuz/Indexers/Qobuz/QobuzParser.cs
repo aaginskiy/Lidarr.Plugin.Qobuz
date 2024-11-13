@@ -37,7 +37,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             // determine available audio qualities
             List<AudioQuality> qualityList = new() { AudioQuality.MP3320, AudioQuality.FLACLossless };
 
-            if (result.MaximumBitDepth == 24 && (result.HiresStreamable ?? false))
+            if ((result.Hires ?? false) && (result.HiresStreamable ?? false))
             {
                 qualityList.Add(AudioQuality.FLACHiRes24Bit192Khz);
                 qualityList.Add(AudioQuality.FLACHiRes24Bit96kHz);
@@ -103,18 +103,17 @@ namespace NzbDrone.Core.Indexers.Qobuz
                     throw new NotImplementedException();
             }
 
-            // TODO: determine if getting size is possible
-            var size = 0;
-            /*var bps = bitrate switch
+            // estimates as there isn't an efficient way to get sizes
+            var size = 0L;
+            var bps = bitrate switch
             {
-                AudioQuality.HI_RES_LOSSLESS => 1152000,
-                AudioQuality.HI_RES => 576000,
-                AudioQuality.LOSSLESS => 176400,
-                AudioQuality.HIGH => 40000,
-                AudioQuality.LOW => 12000,
-                _ => 40000
+                AudioQuality.MP3320 => 320000,
+                AudioQuality.FLACLossless => 1411200,
+                AudioQuality.FLACHiRes24Bit96kHz => 4608000,
+                AudioQuality.FLACHiRes24Bit192Khz => 9216000,
+                _ => 320000
             };
-            var size = x.Duration * bps;*/
+            size = x.Duration.Value * bps;
 
             result.Size = size;
             result.Title = $"{x.Artist.Name} - {title}";
