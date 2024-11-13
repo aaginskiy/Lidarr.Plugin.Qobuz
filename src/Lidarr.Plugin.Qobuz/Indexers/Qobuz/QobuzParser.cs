@@ -91,12 +91,12 @@ namespace NzbDrone.Core.Indexers.Qobuz
                     break;
                 case AudioQuality.FLACHiRes24Bit96kHz:
                     result.Codec = "FLAC";
-                    result.Container = "Hi-Res";
+                    result.Container = "Hi-Res 96kHz";
                     format = "FLAC Hi-Res 96kHz";
                     break;
                 case AudioQuality.FLACHiRes24Bit192Khz:
                     result.Codec = "FLAC";
-                    result.Container = "Hi-Res";
+                    result.Container = "Hi-Res 192kHz";
                     format = "FLAC Hi-Res 192kHz";
                     break;
                 default:
@@ -117,7 +117,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             var size = x.Duration * bps;*/
 
             result.Size = size;
-            result.Title = $"{x.Artist.Name} - {x.Title}";
+            result.Title = $"{x.Artist.Name} - {title}";
 
             if (year > 0)
             {
