@@ -10,9 +10,9 @@ EndProject
 Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Lidarr.Console", "..\..\Lidarr\_artifacts\win-x64\net6.0\Lidarr\Lidarr.Console.exe", "{04F6B3DE-C567-4323-B451-23F19F9D1E44}"
 	ProjectSection(DebuggerProjectSystem) = preProject
 		PortSupplier = 00000000-0000-0000-0000-000000000000
-		Executable = E:\Projects\GitHub\Lidarr\_artifacts\win-x64\net6.0\Lidarr\Lidarr.Console.exe
+		Executable = X:\Projects\GitHub\Lidarr\_artifacts\win-x64\net6.0\Lidarr\Lidarr.Console.exe
 		RemoteMachine = DESKTOP-V8L78GV
-		StartingDirectory = E:\Projects\GitHub\Lidarr\_artifacts\win-x64\net6.0\Lidarr
+		StartingDirectory = X:\Projects\GitHub\Lidarr\_artifacts\win-x64\net6.0\Lidarr
 		Environment = Default
 		LaunchingEngine = 00000000-0000-0000-0000-000000000000
 		UseLegacyDebugEngines = No

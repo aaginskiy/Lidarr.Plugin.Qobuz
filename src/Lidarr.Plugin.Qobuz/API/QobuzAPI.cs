@@ -14,19 +14,20 @@ public class QobuzAPI
 {
     public static QobuzAPI Instance { get; private set; }
 
-    public static void Initialize(Logger logger)
+    public static void Initialize(Logger logger, string appId, string appSecret, bool forceRecreate = false)
     {
-        if (Instance != null)
+        if (Instance != null && !forceRecreate)
             return;
-        Instance = new QobuzAPI();
+        Instance = new QobuzAPI(appId, appSecret);
     }
 
-    private QobuzAPI()
+    private QobuzAPI(string appId, string appSecret)
     {
         Instance = this;
-        // should automatically retrieve the app id and secret
-        // TODO: may want to add an optional custom app id and secret setting
-        _client = new();
+        if (!string.IsNullOrEmpty(appId) && !string.IsNullOrEmpty(appSecret))
+            _client = new(appId, appSecret);
+        else
+            _client = new();
     }
 
     public QobuzApiService Client => _client;
