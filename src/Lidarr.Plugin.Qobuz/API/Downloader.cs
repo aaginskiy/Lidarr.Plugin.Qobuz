@@ -11,12 +11,12 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using NzbDrone.Core.Parser;
 using QobuzApiSharp.Service;
+using QobuzApiSharp.Models.Content;
 
 namespace NzbDrone.Plugin.Qobuz.API;
 
 public static class Downloader
 {
-    internal const string CDN_TEMPLATE = "https://static.qobuz.com/images/covers/rb/tc/{0}_600.jpg";
     private static readonly byte[] FLAC_MAGIC = "fLaC"u8.ToArray();
     private static readonly HttpClient _client = new();
 
@@ -89,22 +89,17 @@ public static class Downloader
         return null;
     }
 
-    public static async Task<byte[]> GetAlbumArtBytes(this QobuzApiService s, string id, CancellationToken token = default)
+    public static async Task<byte[]> GetAlbumArtBytes(this QobuzApiService s, Album albumData, CancellationToken token = default)
     {
-        HttpRequestMessage message = new(HttpMethod.Get, GetCDNUrl(id));
+        using HttpRequestMessage message = new(HttpMethod.Get, albumData.Image.Large);
         HttpResponseMessage response = await _client.SendAsync(message, token);
 
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            throw new Exception($"The art for {id} is unavailable.");
+            throw new Exception($"The art for {albumData.Id} is unavailable.");
         }
 
         return await response.Content.ReadAsByteArrayAsync(token);
-    }
-
-    public static string GetCDNUrl(string id)
-    {
-        return string.Format(CDN_TEMPLATE, id);
     }
 
     private static async Task<Stream> GetTrackData(this QobuzApiService s, string trackId, AudioQuality bitrate, CancellationToken token = default)
@@ -120,11 +115,10 @@ public static class Downloader
     private static async Task ApplyMetadataToTagLibFile(this QobuzApiService s, TagLib.File track, string trackId, string lyrics = "", CancellationToken token = default)
     {
         var page = s.GetTrack(trackId, true);
-        string albumId = page.Album.Id;
-        var albumPage = s.GetAlbum(albumId, true);
+        var albumPage = s.GetAlbum(page.Album.Id, true);
 
         byte[]? albumArt = null;
-        try { albumArt = await s.GetAlbumArtBytes(albumId, token); } catch (Exception) { }
+        try { albumArt = await s.GetAlbumArtBytes(albumPage, token); } catch (Exception) { }
 
         track.Tag.Title = page.Title;
         track.Tag.Album = albumPage.Title;
