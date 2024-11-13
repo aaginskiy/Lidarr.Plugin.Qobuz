@@ -57,19 +57,12 @@ namespace NzbDrone.Core.Indexers.Qobuz
             }
 
             var url = x.Url;
-            var title = x.Title.Trim();
-
-            if (title.EndsWith(" (Explicit)"))
-                title = title[..title.IndexOf(" (Explicit)")].Trim();
-
-            if (!string.IsNullOrEmpty(x.Version))
-                title = $"{title} ({x.Version})";
 
             var result = new ReleaseInfo
             {
                 Guid = $"Qobuz-{x.Id}-{bitrate}",
                 Artist = x.Artist.Name,
-                Album = title,
+                Album = x.CompleteTitle,
                 DownloadUrl = url,
                 InfoUrl = url,
                 PublishDate = publishDate,
@@ -116,7 +109,7 @@ namespace NzbDrone.Core.Indexers.Qobuz
             size = x.Duration.Value * bps;
 
             result.Size = size;
-            result.Title = $"{x.Artist.Name} - {title}";
+            result.Title = $"{x.Artist.Name} - {x.CompleteTitle}";
 
             if (year > 0)
             {

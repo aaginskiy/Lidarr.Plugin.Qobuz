@@ -123,8 +123,8 @@ public static class Downloader
         byte[]? albumArt = null;
         try { albumArt = await s.GetAlbumArtBytes(albumPage, token); } catch (Exception) { }
 
-        track.Tag.Title = page.Title;
-        track.Tag.Album = albumPage.Title;
+        track.Tag.Title = page.CompleteTitle;
+        track.Tag.Album = albumPage.CompleteTitle;
         track.Tag.Performers = [page.Performer.Name];
         track.Tag.AlbumArtists = albumPage.Artists.Select(x => x.Name).ToArray();
         DateTime releaseDate = page.ReleaseDateOriginal.GetValueOrDefault().DateTime;

@@ -14,8 +14,8 @@ namespace NzbDrone.Core.Download.Clients.Qobuz
         {
             var releaseDate = qobuzAlbum.ReleaseDateOriginal.GetValueOrDefault().DateTime;
             return GetFilledTemplate_Internal(template,
-                qobuzPage.Title,
-                qobuzPage.Album.Title,
+                qobuzPage.CompleteTitle,
+                qobuzPage.Album.CompleteTitle,
                 qobuzAlbum.Artist.Name,
                 qobuzPage.Performer.Name,
                 qobuzAlbum.Artists.Select(a => a.Name).ToArray(),

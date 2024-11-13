@@ -109,9 +109,9 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
         private async Task DoTrackDownload(string track, QobuzSettings settings, CancellationToken cancellation = default)
         {
             var page = QobuzAPI.Instance.Client.GetTrack(track, true);
-            var songTitle = page.Title;
+            var songTitle = page.CompleteTitle;
             var artistName = page.Performer.Name;
-            var albumTitle = page.Album.Title;
+            var albumTitle = page.Album.CompleteTitle;
             var duration = page.Duration;
 
             var ext = Bitrate == AudioQuality.MP3320 ? "mp3" : "flac";
@@ -168,7 +168,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
 
             _qobuzAlbum = album;
 
-            Title = album.Title;
+            Title = album.CompleteTitle;
             Artist = album.Artist.Name;
             Explicit = album.ParentalWarning.GetValueOrDefault();
             TotalSize = _tracks.Length;
