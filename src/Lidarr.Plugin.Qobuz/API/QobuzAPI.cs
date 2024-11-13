@@ -31,17 +31,20 @@ public class QobuzAPI
     }
 
     public QobuzApiService Client => _client;
-
     private QobuzApiService _client;
 
     public Login Login => _login;
-
     private Login _login;
+
+    public string? LastPassword => _lastPassword;
+    private string? _lastPassword;
 
     public void PickSignInFromSettings(QobuzIndexerSettings settings, Logger logger)
     {
         bool ep = !string.IsNullOrEmpty(settings.Email) && !string.IsNullOrEmpty(settings.MD5Password);
         bool it = !string.IsNullOrEmpty(settings.UserID) && !string.IsNullOrEmpty(settings.UserAuthToken);
+
+        _lastPassword = settings.MD5Password;
 
         try
         {

@@ -37,7 +37,9 @@ namespace NzbDrone.Core.Indexers.Qobuz
             bool it = !string.IsNullOrEmpty(Settings.UserID) && !string.IsNullOrEmpty(Settings.UserAuthToken);
             if (ep || it)
             {
-                bool forceRecreate = (Settings.AppID != QobuzAPI.Instance?.Client?.AppId) || (Settings.AppSecret != QobuzAPI.Instance?.Client?.AppSecret);
+                bool forceRecreate = (Settings.AppID != QobuzAPI.Instance?.Client?.AppId) || (Settings.AppSecret != QobuzAPI.Instance?.Client?.AppSecret)
+                                  || (Settings.Email != QobuzAPI.Instance?.Login?.User?.Email) || (Settings.MD5Password != QobuzAPI.Instance?.LastPassword)
+                                  || (Settings.UserID != QobuzAPI.Instance?.Login?.User?.Id.ToString()) || (Settings.UserAuthToken != QobuzAPI.Instance?.Login?.AuthToken);
 
                 QobuzAPI.Initialize(_logger, Settings.AppID, Settings.AppSecret, forceRecreate);
                 QobuzAPI.Instance.PickSignInFromSettings(Settings, _logger);
