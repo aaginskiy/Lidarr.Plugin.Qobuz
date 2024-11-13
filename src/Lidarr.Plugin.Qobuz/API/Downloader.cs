@@ -104,8 +104,11 @@ public static class Downloader
 
     private static async Task<Stream> GetTrackData(this QobuzApiService s, string trackId, AudioQuality bitrate, CancellationToken token = default)
     {
-        var url = (s.GetTrackFileUrl(trackId, ((int)bitrate).ToString())?.Url) ?? throw new Exception($"Track ID {trackId} has no available media sources for bitrate {bitrate}.");
-        HttpRequestMessage message = new(HttpMethod.Get, url);
+        var urls = (s.GetTrackFileUrl(trackId, ((int)bitrate).ToString())) ?? throw new Exception($"Track ID {trackId} has no available media sources for bitrate {bitrate}.");
+        if (urls.Sample ?? false)
+            throw new Exception("Qobuz provided a sample. The user probably does not have access to this quality of track.");
+
+        HttpRequestMessage message = new(HttpMethod.Get, urls.Url);
         HttpResponseMessage response = await _client.SendAsync(message, token);
         Stream stream = await response.Content.ReadAsStreamAsync(token);
 
