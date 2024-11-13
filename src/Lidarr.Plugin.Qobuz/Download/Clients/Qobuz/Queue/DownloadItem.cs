@@ -70,7 +70,6 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
         private string[] _tracks;
         private QobuzURL _qobuzUrl;
         private Album _qobuzAlbum;
-        private DateTime _lastARLValidityCheck = DateTime.MinValue;
 
         public async Task DoDownload(QobuzSettings settings, Logger logger, CancellationToken cancellation = default)
         {
@@ -84,6 +83,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
                     try
                     {
                         await DoTrackDownload(trackId, settings, cancellation);
+                        DownloadedSize++;
                     }
                     catch (TaskCanceledException) { }
                     catch (Exception ex)
