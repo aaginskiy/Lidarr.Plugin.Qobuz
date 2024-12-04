@@ -1,0 +1,6 @@
+[submodule "ext/Lidarr"]
+	path = ext/Lidarr
+	url = https://github.com/TrevTV/LidarrReference
+[submodule "ext/QobuzApiSharp"]
+	path = ext/QobuzApiSharp
+	url = https://github.com/TrevTV/QobuzApiSharp
