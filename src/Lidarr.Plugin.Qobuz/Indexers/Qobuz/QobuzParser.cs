@@ -84,13 +84,13 @@ namespace NzbDrone.Core.Indexers.Qobuz
                     break;
                 case AudioQuality.FLACHiRes24Bit96kHz:
                     result.Codec = "FLAC";
-                    result.Container = "Hi-Res 96kHz";
-                    format = "FLAC Hi-Res 96kHz";
+                    result.Container = "24bit 96kHz";
+                    format = "FLAC 24bit 96kHz";
                     break;
                 case AudioQuality.FLACHiRes24Bit192Khz:
                     result.Codec = "FLAC";
-                    result.Container = "Hi-Res 192kHz";
-                    format = "FLAC Hi-Res 192kHz";
+                    result.Container = "24bit 192kHz";
+                    format = "FLAC 24bit 192kHz";
                     break;
                 default:
                     throw new NotImplementedException();

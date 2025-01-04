@@ -71,8 +71,8 @@ namespace NzbDrone.Core.Download.Clients.Qobuz
             {
                 AudioQuality.MP3320 => "MP3 320kbps",
                 AudioQuality.FLACLossless => "FLAC Lossless",
-                AudioQuality.FLACHiRes24Bit96kHz => "FLAC Hi-Res 96kHz",
-                AudioQuality.FLACHiRes24Bit192Khz => "FLAC Hi-Res 192kHz",
+                AudioQuality.FLACHiRes24Bit96kHz => "FLAC 24bit 96kHz",
+                AudioQuality.FLACHiRes24Bit192Khz => "FLAC 24bit 192kHz",
                 _ => throw new NotImplementedException(),
             };
 

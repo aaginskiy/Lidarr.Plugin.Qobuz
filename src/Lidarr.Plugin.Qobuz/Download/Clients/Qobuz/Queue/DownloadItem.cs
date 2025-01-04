@@ -22,8 +22,8 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             {
                 "320" => AudioQuality.MP3320,
                 "Lossless" => AudioQuality.FLACLossless,
-                "Hi-Res 96kHz" => AudioQuality.FLACHiRes24Bit96kHz,
-                "Hi-Res 192kHz" => AudioQuality.FLACHiRes24Bit192Khz,
+                "24bit 96kHz" => AudioQuality.FLACHiRes24Bit96kHz,
+                "24bit 192kHz" => AudioQuality.FLACHiRes24Bit192Khz,
                 _ => AudioQuality.MP3320,
             };
 
