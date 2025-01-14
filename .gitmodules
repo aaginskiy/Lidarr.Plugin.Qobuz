@@ -1,3 +1,7 @@
 [submodule "ext/QobuzApiSharp"]
 	path = ext/QobuzApiSharp
 	url = https://github.com/TrevTV/QobuzApiSharp
+[submodule "ext/Lidarr"]
+	path = ext/Lidarr
+	url = https://github.com/Lidarr/Lidarr
+	branch = plugins
