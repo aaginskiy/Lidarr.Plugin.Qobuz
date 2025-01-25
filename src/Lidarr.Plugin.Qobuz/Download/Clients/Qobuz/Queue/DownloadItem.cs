@@ -115,7 +115,15 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             var duration = page.Duration;
 
             var ext = Bitrate == AudioQuality.MP3320 ? "mp3" : "flac";
-            var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album%/", ext, page, _qobuzAlbum), MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
+            var quality = remoteAlbum.Release.Container switch
+            {
+                AudioQuality.MP3320 => "320",
+                AudioQuality.FLACLossless => "Lossless",
+                AudioQuality.FLACHiRes24Bit96kHz => "24bit 96kHz",
+                AudioQuality.FLACHiRes24Bit192Khz => "24bit 192kHz",
+                _ => "320",
+            };
+            var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album% ", ext, page, _qobuzAlbum), quality, "/", MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
             var outDir = Path.GetDirectoryName(outPath)!;
 
             DownloadFolder = outDir;
