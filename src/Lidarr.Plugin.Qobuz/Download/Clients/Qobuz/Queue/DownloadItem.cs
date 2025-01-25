@@ -123,7 +123,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
                 AudioQuality.FLACHiRes24Bit192Khz => "24bit 192kHz",
                 _ => "320",
             };
-            var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album% ", ext, page, _qobuzAlbum), quality, "/", MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
+            var outPath = Path.Combine(settings.DownloadPath, MetadataUtilities.GetFilledTemplate("%albumartist%/%album% [" + quality +"]/", ext, page, _qobuzAlbum), MetadataUtilities.GetFilledTemplate("%track% - %title%.%ext%", ext, page, _qobuzAlbum));
             var outDir = Path.GetDirectoryName(outPath)!;
 
             DownloadFolder = outDir;
