@@ -115,7 +115,7 @@ namespace NzbDrone.Core.Download.Clients.Qobuz.Queue
             var duration = page.Duration;
 
             var ext = Bitrate == AudioQuality.MP3320 ? "mp3" : "flac";
-            var quality = remoteAlbum.Release.Container switch
+            var quality = Bitrate switch
             {
                 AudioQuality.MP3320 => "320",
                 AudioQuality.FLACLossless => "Lossless",
